@@ -1,0 +1,16 @@
+python-telegram-bot==21.2
+
+telegram
+flask
+nest-asyncio
+python-dateutil
+apscheduler
+python-dotenv
+replit
+pytz
+requests
+pytelegrambotapi
+beautifulsoup4
+openai
+httpx
+aiohttp

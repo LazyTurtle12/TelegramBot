@@ -1,0 +1,85 @@
+{
+  "mentioned_users": [
+    "@Mohammed_f404",
+    "@LazyTurtle1",
+    "@HaiderAli10",
+    "@specter90",
+    "@Tigermasko",
+    "@Hrain3000",
+    "@Alm0btaker",
+    "@Hamooor16",
+    "@ZoRo_Gamer10",
+    "@Xatheo",
+    "@Namo0r_Hussain",
+    "@SayedMxhammed"
+  ],
+  "user_activities": {
+    "-4054071582": {
+      "157674349": {
+        "username": "@LazyTurtle1",
+        "activities": {
+          "2025-04-20": 7,
+          "2025-04-21": 39,
+          "2025-04-22": 16,
+          "2025-04-23": 2,
+          "2025-04-24": 105
+        }
+      },
+      "885801531": {
+        "username": "@Hamooor16",
+        "activities": {
+          "2025-04-20": 1,
+          "2025-04-21": 24
+        }
+      },
+      "1100681049": {
+        "username": "ZoRo_Gamer10",
+        "activities": {
+          "2025-04-21": 4
+        }
+      },
+      "5316739981": {
+        "username": "Alm0btaker",
+        "activities": {
+          "2025-04-21": 1
+        }
+      },
+      "423372282": {
+        "username": "HaiderAli10",
+        "activities": {
+          "2025-04-21": 1
+        }
+      }
+    },
+    "157674349": {
+      "157674349": {
+        "username": "LazyTurtle1",
+        "activities": {
+          "2025-04-23": 9,
+          "2025-04-24": 23
+        }
+      }
+    }
+  },
+  "user_points": {
+    "-4054071582": {
+      "157674349": {
+        "username": "LazyTurtle1",
+        "points": 2
+      }
+    },
+    "157674349": {
+      "157674349": {
+        "username": "LazyTurtle1",
+        "points": 2
+      }
+    },
+    "-4054071582": {
+      "157674349": {
+        "username": "LazyTurtle1",
+        "points": 1
+      }
+    }
+  },
+  "reminders": {}
+}
