@@ -2277,7 +2277,7 @@ def main() -> None:
     # Start the web server to keep the bot alive
     keep_alive()
 
-    application = ApplicationBuilder().token("7947491004:AAF13fMS-jCvMHfDGhK1KlFaSAHcfaE1KYQ").build()
+    application = ApplicationBuilder().token("7947491004:AAEsvCV1uK4vjZmVAxSHos_zy5f7_slmub0").build()
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
