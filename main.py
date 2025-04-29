@@ -1281,12 +1281,6 @@ QURAN_QUESTIONS = [
         "ref": "سورة البقرة - الآية 5"
     },
     {
-        "question": "ما معنى 'الصمد' في سورة الإخلاص؟",
-        "options": ["السيد الذي انتهى إليه السؤدد", "الأحد", "القوي", "العظيم"],
-        "correct": 0,
-        "category": "معاني الكلمات"
-    },
-    {
         "question": "ما سبب نزول سورة الكوثر؟",
         "options": ["بسبب تكذيب المشركين لرسول الله", "بسبب سؤال اليهود عن الروح", "بسبب حادثة الإفك", "بسبب وفاة ابن النبي"],
         "correct": 0,
@@ -2277,7 +2271,7 @@ def main() -> None:
     # Start the web server to keep the bot alive
     keep_alive()
 
-    application = ApplicationBuilder().token("7947491004:AAEsvCV1uK4vjZmVAxSHos_zy5f7_slmub0").build()
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
