@@ -1,5 +1,5 @@
+keep_alive()
 import os
-BOT_TOKEN = os.getenv("BOT_TOKEN")
 import re
 import random
 import datetime
@@ -9,6 +9,7 @@ import json
 import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
+BOT_TOKEN = os.getenv("BOT_TOKEN")
     ApplicationBuilder,
     CommandHandler,
     MessageHandler,
@@ -2304,3 +2305,19 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+from flask import Flask
+from threading import Thread
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
