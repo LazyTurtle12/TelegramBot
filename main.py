@@ -2269,39 +2269,51 @@ async def monthly(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                    chat_id)
 
 def main() -> None:
+    """
+    الدالة الرئيسية لتشغيل البوت
+    """
+    # تحميل البيانات المحفوظة
     load_data()
 
-    # Start the web server to keep the bot alive
+    # تشغيل خادم Flask للحفاظ على حياة البوت
     keep_alive()
 
+    # إنشاء تطبيق البوت مع التوكن
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("mention", mention))
-    application.add_handler(CommandHandler("active", active))
-    application.add_handler(CommandHandler("remind", remind))
-    application.add_handler(CommandHandler("mcq", mcq))
-    application.add_handler(CommandHandler("quranQ", quranQ))
-    application.add_handler(CommandHandler("monthly", monthly))
-    application.add_handler(CallbackQueryHandler(button_handler, pattern="^quran_"))
-    application.add_handler(CommandHandler("champ", champ))
-    application.add_handler(CommandHandler("points", points))
+    # إضافة معالجات الأوامر الأساسية
+    handlers = [
+        CommandHandler("start", start),
+        CommandHandler("help", help_command),
+        CommandHandler("mention", mention),
+        CommandHandler("active", active),
+        CommandHandler("remind", remind),
+        CommandHandler("mcq", mcq),
+        CommandHandler("quranQ", quranQ),
+        CommandHandler("monthly", monthly),
+        CommandHandler("champ", champ),
+        CommandHandler("points", points),
+        
+        # معالجات الأزرار
+        CallbackQueryHandler(button_handler, pattern="^mcq_"),
+        CallbackQueryHandler(button_handler, pattern="^quran_"),
+        CallbackQueryHandler(champ_button_handler, pattern="^champ_"),
+        
+        # معالجات الرسائل
+        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message),
+        MessageHandler(filters.COMMAND, unknown_command)
+    ]
 
-    # Add button handlers
-    application.add_handler(CallbackQueryHandler(button_handler, pattern="^mcq_"))
-    application.add_handler(CallbackQueryHandler(champ_button_handler, pattern="^champ_"))
+    # إضافة جميع المعالجات للتطبيق
+    for handler in handlers:
+        application.add_handler(handler)
 
-    # Add message handlers
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
-
-    # Schedule jobs
+    # جدولة المهام الدورية
     job_queue = application.job_queue
     job_queue.run_repeating(check_reminders, interval=60, first=10)
 
-    application.run_polling()
+    # تشغيل البوت باستخدام polling
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
