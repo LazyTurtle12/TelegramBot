@@ -1,5 +1,3 @@
-keep_alive()
-import os
 import re
 import random
 import datetime
@@ -7,9 +5,10 @@ import pytz
 import time
 import json
 import asyncio
+import os
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
-BOT_TOKEN = os.getenv("BOT_TOKEN")
     ApplicationBuilder,
     CommandHandler,
     MessageHandler,
@@ -17,6 +16,12 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
     CallbackQueryHandler,
     filters
 )
+
+# Load environment variables
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+
 
 # ---------------------- Web Server ----------------------
 from flask import Flask
@@ -29,7 +34,7 @@ def home():
     return "Bot is running!"
 
 def run():
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 5000)))
 
 def keep_alive():
     t = Thread(target=run)
@@ -1278,7 +1283,7 @@ QURAN_QUESTIONS = [
     },
     {
         "question": "ما حكم النون الساكنة في كلمة 'مِن رَّبِّهِمۡ' (البقرة: 5)؟",
-        "options": ["إظهار", "إدغام بغير غنة", "إخفاء", "إقلاب"],
+        "options": ["إظهار", "إدغام بغنة", "إخفاء", "إقلاب"],
         "correct": 1,
         "category": "تجويد",
         "ref": "سورة البقرة - الآية 5"
@@ -1384,7 +1389,6 @@ QURAN_QUESTIONS = [
         "ref": "سورة الحديد - الآية 28"
     },
     {
-    {
         "question": "ما معنى 'الحطمة' في سورة الهمزة؟",
         "options": ["النار", "الزلزال", "الصيحة", "القبر"],
         "correct": 0,
@@ -1403,6 +1407,7 @@ QURAN_QUESTIONS = [
         "category": "علوم القرآن"
     }
 ]
+
 
 # ---------------------- Helper Functions ----------------------
 def save_data():
@@ -2119,19 +2124,17 @@ async def monthly(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                    chat_id)
 
 def main() -> None:
-    """
-    الدالة الرئيسية لتشغيل البوت
-    """
-    # تحميل البيانات المحفوظة
+    """Start the bot."""
+    # Load saved data
     load_data()
 
-    # تشغيل خادم Flask للحفاظ على حياة البوت
+    # Start the web server
     keep_alive()
 
-    # إنشاء تطبيق البوت مع التوكن
+    # Initialize the bot
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # إضافة معالجات الأوامر الأساسية
+    # Add handlers
     handlers = [
         CommandHandler("start", start),
         CommandHandler("help", help_command),
@@ -2144,42 +2147,26 @@ def main() -> None:
         CommandHandler("champ", champ),
         CommandHandler("points", points),
         
-        # معالجات الأزرار
+        # Button handlers
         CallbackQueryHandler(button_handler, pattern="^mcq_"),
         CallbackQueryHandler(button_handler, pattern="^quran_"),
         CallbackQueryHandler(champ_button_handler, pattern="^champ_"),
         
-        # معالجات الرسائل
+        # Message handlers
         MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message),
         MessageHandler(filters.COMMAND, unknown_command)
     ]
 
-    # إضافة جميع المعالجات للتطبيق
+    # Add all handlers to application
     for handler in handlers:
         application.add_handler(handler)
 
-    # جدولة المهام الدورية
+    # Schedule jobs
     job_queue = application.job_queue
     job_queue.run_repeating(check_reminders, interval=60, first=10)
 
-    # تشغيل البوت باستخدام polling
+    # Start the bot
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
-
-from flask import Flask
-from threading import Thread
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Bot is alive!"
-
-def run():
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
