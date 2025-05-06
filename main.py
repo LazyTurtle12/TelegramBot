@@ -62,6 +62,11 @@ MENTION_USERS = [
 ]
 
 
+# Add after global variables
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(f'Error occurred: {context.error}')
+
+
 # ---------------------- Helper Functions ----------------------
 
 def shuffle_question_options(questions):
@@ -1442,12 +1447,7 @@ QURAN_QUESTIONS = [
         "correct": 1,
         "category": "تجويد"
     },
-    {
-        "question": "ما أول سورة نزلت كاملة في القرآن؟",
-        "options": ["الفاتحة", "المدثر", "المسد", "الكوثر"],
-        "correct": 0,
-        "category": "علوم القرآن"
-    },
+
     {
         "question": "ما معنى 'الكنس' في سورة التكوير؟",
         "options": ["النجوم المختفية", "النجوم المضيئة", "النجوم الساقطة", "النجوم الثابتة"],
@@ -1455,7 +1455,7 @@ QURAN_QUESTIONS = [
         "category": "معاني الكلمات"
     },
     {
-        "question": "ما هي السورة التي تسمى 'أم الكتاب'؟",
+        "question": "ما هي السورة التي تسمى 'الوافية ؟",
         "options": ["الفاتحة", "البقرة", "آل عمران", "النساء"],
         "correct": 0,
         "category": "علوم القرآن"
@@ -1574,15 +1574,28 @@ async def active(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = str(update.effective_chat.id)
 
     if chat_id not in user_activities or not user_activities[chat_id]:
-        await update.message.reply_text("❗ مافي تفاعل مسجل لهذه المجموعة!")
+        await update.message.reply_text("❗ محد متفاعل بعد!")
         return
 
-    # Calculate last week's date
+    # حساب تاريخ الأسبوع
     today = datetime.datetime.now()
     week_ago = today - datetime.timedelta(days=7)
+    
+    # تنسيق التواريخ
+    date_range = f"من {week_ago.strftime('%d/%m/%Y')} لليوم {today.strftime('%d/%m/%Y')}"
 
-    # Collect weekly activity
+    # جمع النشاطات
     weekly_activity = {}
+    all_users = set()  # لتخزين جميع المستخدمين
+
+    # جمع جميع المستخدمين أولاً
+    for chat_data in user_activities.values():
+        for user_id, data in chat_data.items():
+            all_users.add(user_id)
+            if user_id not in weekly_activity:
+                weekly_activity[user_id] = {'username': data['username'], 'count': 0}
+
+    # حساب النشاط
     for user_id, data in user_activities[chat_id].items():
         username = data['username']
         activities = data['activities']
@@ -1590,48 +1603,55 @@ async def active(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         total = 0
         for date_str, count in activities.items():
             date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-            if date >= week_ago:
+            if week_ago <= date <= today:
                 total += count
 
         weekly_activity[user_id] = {'username': username, 'count': total}
 
-    # Sort by activity
+    # ترتيب المستخدمين حسب النشاط
     sorted_users = sorted(weekly_activity.items(), key=lambda x: x[1]['count'], reverse=True)
 
-    if not sorted_users:
-        await update.message.reply_text("❗ مافي تفاعل خلال الأسبوع الماضي!")
-        return
+    # تحضير الرسالة
+    activity_msg = f"🏆 *نشاط الأعضاء خلال الفترة*\n{date_range}\n\n"
 
-    # Prepare activity message
-    activity_msg = "🏆 أكثر الأعضاء تفاعلاً خلال الأسبوع 🏆\n\n"
+    # عبارات للمتفاعلين
+    active_phrases = {
+        0: ["هذا الكبير! 👑", "ملك التفاعل! 👑", "شنو هالنشاط! 👑"],
+        1: ["عاشت ايدك! 🔥", "تفاعل حلو! 🔥", "هيج نريدك! 🔥"],
+        2: ["شاطر والله! ⭐", "همتك عالية! ⭐", "تستاهل! ⭐"],
+    }
 
+    # عبارات للنايمين
+    sleeping_phrases = [
+        "شبيك نايم؟ 😴",
+        "وينك عايفنا؟ 💤",
+        "كوم من النوم! 🛏️",
+        "شصاير عليك؟ 😪",
+        "ليش هالغيبة؟ 🌙",
+        "راقد من زمان! 💤",
+        "وين هالغيبة؟ 😴",
+        "شكد راقد! 🛏️",
+        "صحصح يمعود! 💤",
+        "كافي رقاد! 😪"
+    ]
+    
+    # إضافة المتفاعلين
     for i, (user_id, data) in enumerate(sorted_users):
         username = data['username']
         count = data['count']
 
-        if count == 0:
-            continue
-
-        if i == 0:
-            emoji = "👑"
-            phrase = random.choice(["ملك التفاعل!", "هذا سيد التفاعل!", "أكثر واحد متفاعل!"])
-        elif i == 1:
-            emoji = "🔥"
-            phrase = random.choice(["شعلة تفاعل!", "نار والله!", "ثاني ملك تفاعل!"])
-        elif i == 2:
-            emoji = "⭐"
-            phrase = random.choice(["شاطر والله!", "متفاعل مره!", "ثالث الوصول!"])
+        if count > 0:
+            phrase = random.choice(active_phrases.get(i, ["حلو تفاعلك! ✨", "استمر هيج! 🌟", "زين والله! 💫"]))
+            activity_msg += f"{'👑' if i == 0 else '🔥' if i == 1 else '⭐'} *{username}*: {count} مشاركة - {phrase}\n"
         else:
-            emoji = random.choice(["👍", "🙂", "👌"])
-            phrase = random.choice(["استمر يا بطل", "دوم التفاعل", "نشاطك حلو"])
+            sleeping_phrase = random.choice(sleeping_phrases)
+            activity_msg += f"💤 *{username}*: {count} مشاركة - {sleeping_phrase}\n"
 
-        activity_msg += f"{emoji} {username}: {count} مشاركة - {phrase}\n"
-
-    # Send without Markdown parsing
-    await update.message.reply_text(activity_msg)
+    await update.message.reply_text(activity_msg, parse_mode='Markdown')
     record_activity(update.effective_user.id, 
                    update.effective_user.username or update.effective_user.first_name, 
                    chat_id)
+
 
 async def remind(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_chat.id
@@ -2178,10 +2198,6 @@ async def monthly(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         phrase = random.choice(phrases)
         activity_msg += f"{emoji} *{username}*: {count} مشاركة - {phrase}\n"
 
-    await update.message.reply_text(activity_msg, parse_mode='Markdown')
-    record_activity(update.effective_user.id, 
-                   update.effective_user.username or update.effective_user.first_name, 
-                   chat_id)
 
 def main() -> None:
     """Start the bot."""
@@ -2193,6 +2209,9 @@ def main() -> None:
 
     # Initialize the bot
     application = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    # Add error handler
+    application.add_error_handler(error_handler) 
 
     # Add handlers
     handlers = [
@@ -2225,8 +2244,13 @@ def main() -> None:
     job_queue = application.job_queue
     job_queue.run_repeating(check_reminders, interval=60, first=10)
 
-    # Start the bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+    # Start the bot with better parameters
+    application.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=True,
+        pool_timeout=30
+    )
 
 if __name__ == "__main__":
     main()
