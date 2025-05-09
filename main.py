@@ -57,7 +57,7 @@ MENTION_USERS = [
     "@Hamooor16",
     "@ZoRo_Gamer10",
     "@Xatheo",
-    "@Namo0r_Hussain",
+    "@Namo0r",
     "@SayedMxhammed"
 ]
 
